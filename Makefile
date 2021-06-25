@@ -1,2 +1,2 @@
-*.exe: *.c
-	gcc -Wall *.c -o *.exe
+client_hello.exe: client_hello.c
+	gcc -Wall client_hello.c -o client_hello.exe
