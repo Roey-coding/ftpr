@@ -23,7 +23,7 @@ def main():
 		
 		tcp_server.listen(4)
 		(conn, (ip,port)) = tcp_server.accept()
-		print(conn.recv(2000))
+		print(conn.recv(3000))
 
 def welcome():
 	print(WELCOME_MESSAGE)
