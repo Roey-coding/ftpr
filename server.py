@@ -1,7 +1,7 @@
 import socket
 import sys
 
-IP = '0.0.0.0' 
+IP = '' 
 PORT = 2004
 WELCOME_MESSAGE = """
 Welcome to the server.
@@ -23,6 +23,7 @@ def main():
 		
 		tcp_server.listen(4)
 		(conn, (ip,port)) = tcp_server.accept()
+		print(conn.recv(2000))
 
 def welcome():
 	print(WELCOME_MESSAGE)
