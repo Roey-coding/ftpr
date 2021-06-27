@@ -10,4 +10,5 @@ server_certificate.exe: server_certificate.c
 server_key_exchange.exe: server_key_exchange.c
 	gcc -Wall server_key_exchange.c -o server_key_exchange.exe
 	
-
+client_key_exchange.exe: client_key_exchange.c
+	gcc -Wall client_key_exchange.c -o client_key_exchange.exe
