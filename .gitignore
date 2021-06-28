@@ -1,5 +1,6 @@
 *.exe
 /captures
+/testing
 *.crt
 *.txt
 *.pem
