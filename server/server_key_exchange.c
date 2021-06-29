@@ -21,15 +21,12 @@ struct __attribute__((__packed__)) record {
 
 void get_content(char * name, char * s, int index, int amount) {
 	FILE *f = {0};
-	//long fsize = 0;
 	
 	if ((f = fopen(name, "r")) == NULL) {
 		printf("Error! opening file");
 		exit(1);
 	}
 	
-	//fseek(f, 0, SEEK_SET);
-	//fsize = ftell(f);
 	fseek(f, index, SEEK_SET);	
 	
 	fread(s, 1, amount, f);
@@ -37,15 +34,12 @@ void get_content(char * name, char * s, int index, int amount) {
 
 void set_content(char * name, char * s, int index, int amount) {
 	FILE *f = {0};
-	//long fsize = 0;
 	
 	if ((f = fopen(name, "w")) == NULL) {
 		printf("Error! opening file");
 		exit(1);
 	}
 	
-	//fseek(f, 0, SEEK_SET);
-	//fsize = ftell(f);
 	fseek(f, index, SEEK_SET);	
 	
 	fwrite(s, 1, amount, f);
@@ -58,77 +52,31 @@ void print_bytes(char * s, int amount) {
 		printf("%02x", (unsigned char)s[i]);
 	}
 	
-	//printf("\n");
 }
 
 void print_struct(struct record r) {
 	unsigned char packet[sizeof(r)] = {0x00};
 	memcpy(packet, &r, sizeof(r));
 	
-	for(int i = 0; i < 561; i++) {
+	for(int i = 0; i < sizeof(packet); i++) {
 		printf("%02x", packet[i]);
 	}
 }
-/*
-struct record sign_packet(struct record s, char * client_random, char * server_random) {
-	char random[64] = {0};
-	char curve_info[3] = {0};
-	char key_section[33] = {0};
-	
-	char joined_str[100] = {0};
-	char cmd[121] = "echo '";
-	
-	strcat(random, client_random);
-	strcat(random, server_random);
-	
-	memcpy(curve_info, (char *)&s.curve, 3);
-	memcpy(key_section, (char *)&s.public_key_length, 33);
-	
-	//printf("\ncurve info:\n");
-	//print_bytes(curve_info, 3);
-	
-	//printf("\nkey section:\n");
-	//print_bytes(key_section, 33);
-	
-	strcat(joined_str, random);
-	strcat(joined_str, curve_info);
-	strcat(joined_str, key_section);
-	
-	strcat(cmd, joined_str);
-	strcat(cmd, "' > compute.txt");
-	
-	//printf("\ncmd:\n");
-	//print_bytes(cmd, sizeof(cmd));
-	
-	system(cmd);
-	system("openssl dgst -sign server.key -sha256 compute.txt > signature.txt");
 
-	get_content("signature.txt", s.signature, 0, 512);
-	//printf("\nsignature:\n");
-	//print_bytes(s.signature, 512);
-	
-	return s;
-}
-*/
 void sign_packet(struct record *s, char * client_random, char * server_random) {
 	unsigned char total_string[101];
 	char content[101] = {0};
-	//char cmd[121] = "echo \"";
 	
 	memcpy((unsigned char *)&total_string[0], client_random, 32);
 	memcpy((unsigned char *)&total_string[32], server_random, 32);
 	memcpy((unsigned char *)&total_string[64], (char *)&s->curve, 36);
 	
-	//memcpy((unsigned char *)&cmd[6], (unsigned char *)&total_string[0], 100);
-	//memcpy((unsigned char *)&cmd[106], "\" > compute.txt", 15);
 	
 	set_content("compute.txt", total_string, 0, 100);
 	get_content("compute.txt", content, 0, 100);
 	
-	system("openssl dgst -sign server.key -sha256 compute.txt > signature.txt");
+	system("openssl dgst -sign server.key -sha512 compute.txt > signature.txt");
 	get_content("signature.txt", s->signature, 0, 512);
-	
-	//print_bytes(s->signature, 512);
 	
 }
 
@@ -136,14 +84,6 @@ int main() {
 	struct record key_exchange = {0};
 	char s[100] = {0};
 	char cmd[70] = {0};
-	/*
-	char client_random[32] = {0};
-	char server_random[32] = {0};
-	char s[100] = {0};
-	char cmd[70] = {0};
-	
-	//get_content("client_random.txt", client_random, 0, 32);
-	// get_content("client_random.txt", server_random, 0, 32); */
 	
 	key_exchange.rl.record_type = 0x16;
 	key_exchange.rl.version = 0x0303;
@@ -172,16 +112,13 @@ int main() {
 	get_content("hello.txt", key_exchange.public_key, 0, 32);
 	
 	
-	key_exchange.signature_type   = 0x0104;
-	key_exchange.signature_length = 0x0020;
+	key_exchange.signature_type   = 0x0106;
+	key_exchange.signature_length = 0x0002;
 	
-	sign_packet(&key_exchange, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+	sign_packet(&key_exchange, "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 	 
-	
-	//printf("\n");
 	print_struct(key_exchange);
 	
-	//printf("%d", sizeof(key_exchange));
 	return 0;
 }
 

@@ -27,7 +27,7 @@ struct __attribute__((__packed__)) record {
 	
 	uint16_t renegotiation_flag;
 	uint16_t renegotiation_info_length;
-	uint16_t renegotiation_datalength;
+	uint8_t renegotiation_datalength;
 	
 };
 

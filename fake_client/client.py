@@ -10,7 +10,6 @@ BUFFER_SIZE = 2000
 
 def main(program):
 	string = subprocess.check_output([program]).decode()
-
 	b = str(string.encode())[2:][:-1]
 	a = bytes.fromhex(b)
 

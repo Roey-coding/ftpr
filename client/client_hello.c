@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "tls_headers.h"
 
 struct __attribute__((__packed__)) record {
@@ -40,18 +41,46 @@ struct __attribute__((__packed__)) record {
 	// renegotiation info extension
 	
 };
+/* 
+struct internal {
+	hostname_length = (num>>8) | (num<<8);
+
+	
+}; */
 
 
 // int valid_struct(struct record r) {	}
 
 void print_struct(struct record r) {
+	uint16_t suites_length = (r.suites_length >> 8) | (r.suites_length << 8);
+	uint16_t hostname_length = (r.hostname_length >> 8) | (r.hostname_length << 8);
+	int i = 0;
+	
+	//printf("This is the suits length: %d\n", suites_length);
+	//printf("This is the hostname length: %d\n", hostname_length);
+	
 	unsigned char packet[sizeof(r)] = {0x00};
 	memcpy(packet, &r, sizeof(r));
 	
-	for(int i = 0; i < sizeof(packet); i++) {
-		if(packet[i] != 0xff) {
-			printf("%02x", packet[i]);
-		}
+	for(; i < 46; i++) {
+		printf("%02x", packet[i]);
+	}
+	
+	if(!suites_length) {
+		printf("No cypher suits are provided\n");
+		exit(1);
+	}
+	
+	for(; i < suites_length + 46; i++) {
+		printf("%02x", packet[i]);
+	}
+	
+	for(i = 2000 + 46; i < 46 + 13 + 2000; i++) {
+		printf("%02x", packet[i]);
+	}
+	
+	for(; i <  46 + 13 + 2000 + hostname_length; i++) {
+		printf("%02x", packet[i]);
 	}
 }
 
